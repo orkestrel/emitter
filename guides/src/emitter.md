@@ -2,7 +2,7 @@
 
 > The foundational observable primitive (AGENTS §13): a typed, **synchronous** event emitter. Every stateful entity in the codebase — a queue, a database table, an agent — that has lifecycle transitions or observable operations **owns** one `Emitter<TMap>` as a `#emitter` field and exposes it through a `readonly emitter` property; consumers subscribe via `entity.emitter.on(...)`. Composition, never inheritance: an entity threads its event map and an optional error handler into the emitter and otherwise forgets it exists.
 >
-> It is deliberately small. There is no scheduler — `emit` fires listeners in the current tick, in registration order. There is no listener cap, no `max`-listeners warning, and no `console` output (a documented divergence from the scsr precursor). `on` returns `void`, not an `Unsubscribe`. What it _does_ carry is the one invariant a fan-out primitive can't omit: a throwing listener is isolated so it can never take down its siblings or the emit loop. Source: [`src/core/emitters`](../../src/core/emitters). Surfaced through the `@src/core` barrel.
+> It is deliberately small. There is no scheduler — `emit` fires listeners in the current tick, in registration order. There is no listener cap, no `max`-listeners warning, and no `console` output (a documented divergence from the scsr precursor). `on` returns `void`, not an `Unsubscribe`. What it _does_ carry is the one invariant a fan-out primitive can't omit: a throwing listener is isolated so it can never take down its siblings or the emit loop. Source: [`src/core`](../../src/core). Surfaced through the `@src/core` barrel.
 
 ## Surface
 
@@ -78,7 +78,7 @@ The public methods of `EmitterInterface` — every call-signature member listed 
 
 ## Contract
 
-These invariants hold across `src/core/emitters` ↔ `emitters.md`:
+These invariants hold across `src/core` ↔ `emitter.md`:
 
 1. **DOC ↔ SOURCE bijection.** Every `function` / `class` / `interface` / `type` row in the `## Surface` tables is a real export of the emitter source, and every export appears as a Surface row — exhaustive, both directions (AGENTS §22).
 2. **Synchronous, ordered.** `emit` invokes listeners in registration order, in the current tick — no microtask, no scheduler. A listener registered during an `emit` is not invoked for that same `emit` (the listener set is snapshotted before the loop).
@@ -176,9 +176,9 @@ counter.emitter.on('tick', (count) => render(count))
 
 ## Tests
 
-- [`tests/guides/src/parity.test.ts`](../../tests/guides/src/parity.test.ts) — the `## Surface` ↔ `src/core/emitters` bijection (value + type exports) and the `EmitterInterface` ↔ `Emitter` method bijection.
-- [`tests/src/core/emitters/Emitter.test.ts`](../../tests/src/core/emitters/Emitter.test.ts) — `on` / `emit` (typed args, registration order), `once` (fires once, auto-removes), `off` (by original handler, including a `once` wrapper), `count` / `clear` (total and per-event), `destroy` (clears, flips `destroyed`, then no-ops), initial `on` hooks, listener isolation (a throwing listener does not stop siblings; the throw routes to the `error` handler, never rethrown; every throwing listener surfaces; a throwing `error` handler is swallowed), and empty-tuple signals.
-- [`tests/src/core/emitters/factories.test.ts`](../../tests/src/core/emitters/factories.test.ts) — `createEmitter` returns a working `EmitterInterface` and honors initial `on` hooks.
+- [`tests/guides/src/parity.test.ts`](../../tests/guides/src/parity.test.ts) — the `## Surface` ↔ `src/core` bijection (value + type exports) and the `EmitterInterface` ↔ `Emitter` method bijection.
+- [`tests/src/core/Emitter.test.ts`](../../tests/src/core/Emitter.test.ts) — `on` / `emit` (typed args, registration order), `once` (fires once, auto-removes), `off` (by original handler, including a `once` wrapper), `count` / `clear` (total and per-event), `destroy` (clears, flips `destroyed`, then no-ops), initial `on` hooks, listener isolation (a throwing listener does not stop siblings; the throw routes to the `error` handler, never rethrown; every throwing listener surfaces; a throwing `error` handler is swallowed), and empty-tuple signals.
+- [`tests/src/core/factories.test.ts`](../../tests/src/core/factories.test.ts) — `createEmitter` returns a working `EmitterInterface` and honors initial `on` hooks.
 
 ## See also
 

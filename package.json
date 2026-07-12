@@ -1,23 +1,21 @@
 {
-	"name": "@orkestrel/markdown",
+	"name": "@orkestrel/emitter",
 	"version": "0.0.1",
-	"description": "Markdown parser toolkit — a fast, zero-surprise CommonMark-style parser with GFM tables, a typed AST, contract-backed node guards, and safe HTML rendering. Part of the @orkestrel line.",
+	"description": "A typed, synchronous event emitter — listener isolation with an error hook, once/off/clear/destroy, and no scheduler or listener cap. Part of the @orkestrel line.",
 	"keywords": [
-		"ast",
-		"commonmark",
-		"gfm",
-		"html",
-		"markdown",
-		"markdown-parser",
-		"parser",
-		"typescript"
+		"emitter",
+		"events",
+		"event-emitter",
+		"hooks",
+		"typescript",
+		"typed-events"
 	],
-	"homepage": "https://github.com/orkestrel/markdown#readme",
-	"bugs": "https://github.com/orkestrel/markdown/issues",
+	"homepage": "https://github.com/orkestrel/emitter#readme",
+	"bugs": "https://github.com/orkestrel/emitter/issues",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/orkestrel/markdown.git"
+		"url": "git+https://github.com/orkestrel/emitter.git"
 	},
 	"files": [
 		"dist",
