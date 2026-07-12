@@ -10,7 +10,8 @@ import { Emitter } from './Emitter.js'
  * their `#emitter` field directly; this factory is the standalone entry point.
  *
  * @typeParam TMap - The event map: each event name to its listener argument tuple.
- * @param options - Optional `on` hooks: initial listeners wired at construction
+ * @param options - Optional `on` hooks (initial listeners wired at construction) and
+ *   an optional `error` handler for a listener's throw
  * @returns A typed {@link EmitterInterface}
  *
  * @example

@@ -4,11 +4,11 @@
 	"description": "A typed, synchronous event emitter — listener isolation with an error hook, once/off/clear/destroy, and no scheduler or listener cap. Part of the @orkestrel line.",
 	"keywords": [
 		"emitter",
-		"events",
 		"event-emitter",
+		"events",
 		"hooks",
-		"typescript",
-		"typed-events"
+		"typed-events",
+		"typescript"
 	],
 	"homepage": "https://github.com/orkestrel/emitter#readme",
 	"bugs": "https://github.com/orkestrel/emitter/issues",

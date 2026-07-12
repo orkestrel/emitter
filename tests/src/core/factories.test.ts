@@ -1,6 +1,7 @@
+import type { EmitterInterface } from '@src/core'
 import { createEmitter } from '@src/core'
-import { describe, expect, it } from 'vitest'
-import { createRecorder } from '../../../setup.js'
+import { describe, expect, expectTypeOf, it } from 'vitest'
+import { createRecorder } from '../../setup.js'
 
 // The emitter factory — that `createEmitter` returns a working EmitterInterface.
 // Full behavior (once/off/count/clear/destroy, isolation) lives in Emitter.test.ts;
@@ -29,5 +30,20 @@ describe('createEmitter', () => {
 		emitter.emit('tick', 7)
 
 		expect(tick.calls).toEqual([[7]])
+	})
+
+	it('works with no arguments', () => {
+		const emitter = createEmitter<ClockEventMap>()
+		const tick = createRecorder<readonly [number]>()
+		emitter.on('tick', tick.handler)
+
+		emitter.emit('tick', 1)
+
+		expect(tick.calls).toEqual([[1]])
+		expect(emitter.destroyed).toBe(false)
+	})
+
+	it('return type matches EmitterInterface', () => {
+		expectTypeOf(createEmitter<ClockEventMap>()).toEqualTypeOf<EmitterInterface<ClockEventMap>>()
 	})
 })

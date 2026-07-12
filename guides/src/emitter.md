@@ -39,6 +39,12 @@ The reserved `on` option wires initial listeners at construction (AGENTS §8); t
 | --------------- | -------- | ----------------------------------------------------------------------- |
 | `createEmitter` | function | Create an `EmitterInterface<TMap>`, optionally with initial `on` hooks. |
 
+### Helpers
+
+| API           | Kind     | Summary                                                          |
+| ------------- | -------- | ---------------------------------------------------------------- |
+| `extractKeys` | function | Extract an object's own enumerable keys, typed as its key union. |
+
 ### Entities
 
 | API       | Kind  | Summary                                                                     |
@@ -165,6 +171,32 @@ const counter = new Counter({ on: { done: () => cleanup() } })
 counter.emitter.on('tick', (count) => render(count))
 ```
 
+### Manage listeners
+
+`off` removes a specific listener, `count` reports how many are live (per-event or total), and `clear` drops listeners (per-event or all) without destroying the emitter:
+
+```ts
+import { createEmitter } from '@src/core'
+
+type FeedEventMap = {
+	post: readonly [id: string]
+}
+
+const feed = createEmitter<FeedEventMap>()
+const onPost = (id: string) => log(id)
+
+feed.on('post', onPost)
+feed.count('post') // 1
+feed.count() // 1 — total across all events
+
+feed.off('post', onPost)
+feed.count('post') // 0
+
+feed.on('post', onPost)
+feed.clear('post') // drop only `post` listeners
+feed.clear() // drop everything; `feed.destroyed` stays false
+```
+
 ### Practices
 
 - **Own, never inherit** — store an `Emitter` as `#emitter`, expose `readonly emitter` (AGENTS §13). No subclassing, no delegation boilerplate.
@@ -179,6 +211,7 @@ counter.emitter.on('tick', (count) => render(count))
 - [`tests/guides/src/parity.test.ts`](../../tests/guides/src/parity.test.ts) — the `## Surface` ↔ `src/core` bijection (value + type exports) and the `EmitterInterface` ↔ `Emitter` method bijection.
 - [`tests/src/core/Emitter.test.ts`](../../tests/src/core/Emitter.test.ts) — `on` / `emit` (typed args, registration order), `once` (fires once, auto-removes), `off` (by original handler, including a `once` wrapper), `count` / `clear` (total and per-event), `destroy` (clears, flips `destroyed`, then no-ops), initial `on` hooks, listener isolation (a throwing listener does not stop siblings; the throw routes to the `error` handler, never rethrown; every throwing listener surfaces; a throwing `error` handler is swallowed), and empty-tuple signals.
 - [`tests/src/core/factories.test.ts`](../../tests/src/core/factories.test.ts) — `createEmitter` returns a working `EmitterInterface` and honors initial `on` hooks.
+- [`tests/src/core/helpers.test.ts`](../../tests/src/core/helpers.test.ts) — `extractKeys` returns the typed own-enumerable-key union, including the empty-object case.
 
 ## See also
 

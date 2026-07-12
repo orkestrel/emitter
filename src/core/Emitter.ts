@@ -6,6 +6,8 @@ import type {
 	EmitterOptions,
 	EventMap,
 } from './types.js'
+import { isFunction } from '@orkestrel/contract'
+import { extractKeys } from './helpers.js'
 
 /**
  * A typed synchronous event emitter — the foundational observable primitive of
@@ -47,13 +49,20 @@ import type {
 export class Emitter<TMap extends EventMap> implements EmitterInterface<TMap> {
 	#destroyed = false
 	#listeners: { [K in keyof TMap]?: Set<EmitterHandler<TMap[K]>> } = {}
-	#wrappers: { [K in keyof TMap]?: Map<EmitterHandler<TMap[K]>, EmitterHandler<TMap[K]>> } = {}
+	// Each original handler may have MULTIPLE pending once-wrappers (repeated `once(event, h)`
+	// calls before any of them fire), so the value is a Set of wrappers, not a single wrapper.
+	#wrappers: { [K in keyof TMap]?: Map<EmitterHandler<TMap[K]>, Set<EmitterHandler<TMap[K]>>> } = {}
 	// The emitter's own listener-error handler (§13) — a listener throw is routed here, never
 	// rethrown. Held opaquely so an isolated throw becomes the entity's concern, not the loop's.
 	#error: EmitterErrorHandler | undefined
 
+	// Construction is the validation boundary (AGENTS §14): `error` and each `on` hook are
+	// defensively guarded with `isFunction` here so a malformed options bag is skipped rather
+	// than blowing up at first `emit` — `emit()` itself stays assertion-free and dependency-free
+	// (the hot path), trusting only what construction has already let through.
 	constructor(options?: EmitterOptions<TMap>) {
-		this.#error = options?.error
+		const error = options?.error
+		this.#error = isFunction(error) ? error : undefined
 		const hooks = options?.on
 		if (hooks !== undefined) {
 			this.#wire(hooks)
@@ -71,26 +80,41 @@ export class Emitter<TMap extends EventMap> implements EmitterInterface<TMap> {
 
 	once<K extends keyof TMap>(event: K, handler: EmitterHandler<TMap[K]>): void {
 		if (this.#destroyed) return
+		// The wrapper removes ITSELF from the listener Set (captured in its own closure) instead
+		// of routing through `off` — routing through `off` would look the handler up by the
+		// original handler, which a second `once(event, handler)` registration keeps alongside
+		// this one (both pending wrappers share the same original handler), orphaning whichever
+		// wrapper `off` doesn't happen to pick if only a single wrapper were tracked.
+		const pending = (this.#wrappers[event] ??= new Map())
 		const wrapper: EmitterHandler<TMap[K]> = (...args) => {
-			this.off(event, handler)
+			this.#listeners[event]?.delete(wrapper)
+			const wrappers = pending.get(handler)
+			wrappers?.delete(wrapper)
+			if (wrappers !== undefined && wrappers.size === 0) pending.delete(handler)
 			handler(...args)
 		}
-		;(this.#wrappers[event] ??= new Map()).set(handler, wrapper)
+		const wrappers = pending.get(handler) ?? new Set<EmitterHandler<TMap[K]>>()
+		wrappers.add(wrapper)
+		pending.set(handler, wrappers)
 		this.on(event, wrapper)
 	}
 
 	off<K extends keyof TMap>(event: K, handler: EmitterHandler<TMap[K]>): void {
 		const listeners = this.#listeners[event]
 		const wrappers = this.#wrappers[event]
-		const wrapper = wrappers?.get(handler)
-		if (wrapper !== undefined) {
-			listeners?.delete(wrapper)
+		const pending = wrappers?.get(handler)
+		if (pending !== undefined) {
+			for (const wrapper of pending) listeners?.delete(wrapper)
 			wrappers?.delete(handler)
-			return
 		}
+		// Remove the plain handler too — `on(event, h)` + `once(event, h)` registers `h` twice,
+		// and one `off(event, h)` call is meant to clear both registrations.
 		listeners?.delete(handler)
 	}
 
+	// Snapshot semantics: the listener list is copied before iterating, so a listener added
+	// DURING this emit does not fire this round, while a listener removed (or an emitter
+	// destroyed) during this emit STILL fires this round if it was already in the snapshot.
 	emit<K extends keyof TMap>(event: K, ...args: TMap[K]): void {
 		if (this.#destroyed) return
 		const listeners = this.#listeners[event]
@@ -147,19 +171,13 @@ export class Emitter<TMap extends EventMap> implements EmitterInterface<TMap> {
 	// Register the initial `on` hooks. Each key is an event name whose value is the
 	// matching handler, so registering through `on` preserves the correlation the
 	// mapped `EmitterHooks` already guarantees — no assertion needed.
+	// Defensively guards each hook value with `isFunction` (AGENTS §14) — a non-function
+	// entry is skipped rather than registered, so a malformed `on` bag fails safe at
+	// construction instead of throwing later when the bad "handler" is invoked in `emit`.
 	#wire(hooks: EmitterHooks<TMap>): void {
-		for (const event of this.#keys(hooks)) {
+		for (const event of extractKeys(hooks)) {
 			const handler = hooks[event]
-			if (handler !== undefined) this.on(event, handler)
+			if (isFunction(handler)) this.on(event, handler)
 		}
-	}
-
-	// The own enumerable keys of a mapped object, typed as its key union.
-	// `Object.keys` widens to `string[]`, breaking the key↔handler correlation; a
-	// `for…in` push into a `keyof`-typed array narrows it back, type-safely.
-	#keys<T extends object>(object: T): readonly (keyof T)[] {
-		const collected: (keyof T)[] = []
-		for (const key in object) collected.push(key)
-		return collected
 	}
 }
