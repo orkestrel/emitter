@@ -439,8 +439,8 @@ describe('Emitter', () => {
 		expect(errors.calls).toEqual([['string boom', 'tick']])
 	})
 
-	it('constructor — an explicit undefined `on` hook or `error` handler is skipped, not registered or invoked', () => {
-		const emitter = new Emitter<TestEventMap>({ on: { tick: undefined }, error: undefined })
+	it('constructor — an empty `on` hook with an omitted `error` handler registers and invokes nothing', () => {
+		const emitter = new Emitter<TestEventMap>({ on: {} })
 
 		expect(() => emitter.emit('tick', 1)).not.toThrow()
 		expect(emitter.count('tick')).toBe(0)

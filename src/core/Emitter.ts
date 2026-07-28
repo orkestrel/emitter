@@ -80,19 +80,15 @@ export class Emitter<TMap extends EventMap> implements EmitterInterface<TMap> {
 
 	once<K extends keyof TMap>(event: K, handler: EmitterHandler<TMap[K]>): void {
 		if (this.#destroyed) return
-		// The wrapper removes ITSELF from the listener Set (captured in its own closure) instead
+		// The wrapper removes ITSELF from the listener Set (captured through its reference) instead
 		// of routing through `off` — routing through `off` would look the handler up by the
 		// original handler, which a second `once(event, handler)` registration keeps alongside
 		// this one (both pending wrappers share the same original handler), orphaning whichever
 		// wrapper `off` doesn't happen to pick if only a single wrapper were tracked.
 		const pending = (this.#wrappers[event] ??= new Map())
-		const wrapper: EmitterHandler<TMap[K]> = (...args) => {
-			this.#listeners[event]?.delete(wrapper)
-			const wrappers = pending.get(handler)
-			wrappers?.delete(wrapper)
-			if (wrappers !== undefined && wrappers.size === 0) pending.delete(handler)
-			handler(...args)
-		}
+		const reference = new Set<EmitterHandler<TMap[K]>>()
+		const wrapper = this.#wrap(event, handler, pending, reference)
+		reference.add(wrapper)
 		const wrappers = pending.get(handler) ?? new Set<EmitterHandler<TMap[K]>>()
 		wrappers.add(wrapper)
 		pending.set(handler, wrappers)
@@ -152,6 +148,23 @@ export class Emitter<TMap extends EventMap> implements EmitterInterface<TMap> {
 		this.#wrappers = {}
 		this.#error = undefined
 		this.#destroyed = true
+	}
+
+	#wrap<K extends keyof TMap>(
+		event: K,
+		handler: EmitterHandler<TMap[K]>,
+		pending: Map<EmitterHandler<TMap[K]>, Set<EmitterHandler<TMap[K]>>>,
+		reference: Set<EmitterHandler<TMap[K]>>,
+	): EmitterHandler<TMap[K]> {
+		return (...args) => {
+			for (const wrapper of reference) {
+				this.#listeners[event]?.delete(wrapper)
+				const wrappers = pending.get(handler)
+				wrappers?.delete(wrapper)
+				if (wrappers !== undefined && wrappers.size === 0) pending.delete(handler)
+			}
+			handler(...args)
+		}
 	}
 
 	// Route an isolated listener throw to the `error` handler (§13), inside its OWN try/catch:
