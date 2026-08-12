@@ -1,6 +1,6 @@
 {
 	"name": "@orkestrel/emitter",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"description": "A typed, synchronous event emitter — listener isolation with an error hook, once/off/clear/destroy, and no scheduler or listener cap. Part of the @orkestrel line.",
 	"keywords": [
 		"emitter",
@@ -64,7 +64,7 @@
 		"prepublishOnly": "npm run format:check && npm run lint:check && npm run check && npm run build && npm test"
 	},
 	"dependencies": {
-		"@orkestrel/contract": "^0.0.10"
+		"@orkestrel/contract": "^0.0.11"
 	},
 	"devDependencies": {
 		"@microsoft/api-extractor": "^7.58.12",
