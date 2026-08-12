@@ -480,7 +480,7 @@ describe('Emitter', () => {
 	})
 
 	it('error handler doubling as a listener — receives both the listener call and the error call', () => {
-		const calls: (readonly unknown[])[] = []
+		const calls: Array<readonly unknown[]> = []
 		const dual = (...args: readonly unknown[]): void => {
 			calls.push(args)
 		}

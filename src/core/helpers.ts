@@ -9,7 +9,7 @@
  *
  * @typeParam T - The object shape whose keys are extracted.
  * @param object - The object to read keys from.
- * @returns The object's own enumerable keys, typed as `(keyof T)[]`.
+ * @returns The object's own enumerable keys, typed as `ReadonlyArray<keyof T>`.
  *
  * @example
  * ```ts
@@ -20,8 +20,8 @@
  * extractKeys({}) // []
  * ```
  */
-export function extractKeys<T extends object>(object: T): readonly (keyof T)[] {
-	const collected: (keyof T)[] = []
+export function extractKeys<T extends object>(object: T): ReadonlyArray<keyof T> {
+	const collected: Array<keyof T> = []
 	for (const key in object) collected.push(key)
 	return collected
 }

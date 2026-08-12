@@ -47,7 +47,7 @@ export function createErrorRecorder(): TestRecorderInterface<readonly [unknown, 
 	const recorder = createRecorder<readonly [unknown, string]>()
 	const handler: EmitterErrorHandler = (error, event) => recorder.handler(error, event)
 	return {
-		get calls(): readonly (readonly [unknown, string])[] {
+		get calls(): ReadonlyArray<readonly [unknown, string]> {
 			return recorder.calls
 		},
 		get count(): number {
