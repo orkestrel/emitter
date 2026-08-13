@@ -1,7 +1,7 @@
 import type { EmitterInterface } from '@src/core'
 import { createEmitter } from '@src/core'
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { createRecorder } from '../../setup.js'
+import { createRecorder } from '@orkestrel/test'
 
 // The emitter factory — that `createEmitter` returns a working EmitterInterface.
 // Full behavior (once/off/count/clear/destroy, isolation) lives in Emitter.test.ts;

@@ -1,7 +1,8 @@
 import type { EmitterErrorHandler, EmitterHandler } from '@src/core'
 import { Emitter } from '@src/core'
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { createErrorRecorder, createRecorder } from '../../setup.js'
+import { createRecorder } from '@orkestrel/test'
+import { createErrorRecorder } from '../../setup.js'
 
 // Emitter — the foundational synchronous, listener-isolating observable primitive
 // (AGENTS §13). Real listeners (recorders from tests/setup.ts), no mocks: assert
