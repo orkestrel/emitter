@@ -2,7 +2,6 @@ import type { EmitterErrorHandler, EmitterHandler } from '@src/core'
 import { Emitter } from '@src/core'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { createRecorder } from '@orkestrel/test'
-import { createErrorRecorder } from '../../setup.js'
 
 // Emitter — the foundational synchronous, listener-isolating observable primitive
 // (AGENTS §13). Real listeners (recorders from tests/setup.ts), no mocks: assert
@@ -162,7 +161,7 @@ describe('Emitter', () => {
 	})
 
 	it('listener isolation — a throwing listener does not stop its siblings; the throw routes to the error handler, not rethrown', () => {
-		const errors = createErrorRecorder()
+		const errors = createRecorder<Parameters<EmitterErrorHandler>>()
 		const emitter = new Emitter<TestEventMap>({ error: errors.handler })
 		const before = createRecorder<readonly [number]>()
 		const after = createRecorder<readonly [number]>()
@@ -193,7 +192,7 @@ describe('Emitter', () => {
 	})
 
 	it('routes EVERY throwing listener, not just the first', () => {
-		const errors = createErrorRecorder()
+		const errors = createRecorder<Parameters<EmitterErrorHandler>>()
 		const emitter = new Emitter<TestEventMap>({ error: errors.handler })
 		const first = new Error('first')
 		const second = new Error('second')
@@ -213,7 +212,7 @@ describe('Emitter', () => {
 	})
 
 	it('a throwing error handler is swallowed — no recursion, no escape', () => {
-		const errors = createErrorRecorder()
+		const errors = createRecorder<Parameters<EmitterErrorHandler>>()
 		const emitter = new Emitter<TestEventMap>({
 			error: (error, event) => {
 				errors.handler(error, event)
@@ -414,7 +413,7 @@ describe('Emitter', () => {
 	})
 
 	it('error handler — receives the exact thrown value and the event name', () => {
-		const errors = createErrorRecorder()
+		const errors = createRecorder<Parameters<EmitterErrorHandler>>()
 		const emitter = new Emitter<TestEventMap>({ error: errors.handler })
 		emitter.on('named', () => {
 			throw new Error('named boom')
@@ -429,7 +428,7 @@ describe('Emitter', () => {
 	})
 
 	it('error handler — a non-Error thrown value is surfaced verbatim', () => {
-		const errors = createErrorRecorder()
+		const errors = createRecorder<Parameters<EmitterErrorHandler>>()
 		const emitter = new Emitter<TestEventMap>({ error: errors.handler })
 		emitter.on('tick', () => {
 			throw 'string boom'
