@@ -10,9 +10,9 @@ import { isFunction } from '@orkestrel/contract'
 import { extractKeys } from './helpers.js'
 
 /**
- * A typed synchronous event emitter — the foundational observable primitive of
- * the codebase (AGENTS §13). Stateful entities OWN one as a `#emitter` field and
- * expose it through `readonly emitter`; they never inherit from it.
+ * A typed synchronous event emitter — the foundational observable primitive of the
+ * codebase. Stateful entities OWN one as a `#emitter` field and expose it through
+ * `readonly emitter`; they never inherit from it.
  *
  * @typeParam TMap - The event map: each event name to the argument tuple its
  *   listeners receive.
@@ -52,14 +52,14 @@ export class Emitter<TMap extends EventMap> implements EmitterInterface<TMap> {
 	// Each original handler may have MULTIPLE pending once-wrappers (repeated `once(event, h)`
 	// calls before any of them fire), so the value is a Set of wrappers, not a single wrapper.
 	#wrappers: { [K in keyof TMap]?: Map<EmitterHandler<TMap[K]>, Set<EmitterHandler<TMap[K]>>> } = {}
-	// The emitter's own listener-error handler (§13) — a listener throw is routed here, never
+	// The emitter's own listener-error handler — a listener throw is routed here, never
 	// rethrown. Held opaquely so an isolated throw becomes the entity's concern, not the loop's.
 	#error: EmitterErrorHandler | undefined
 
-	// Construction is the validation boundary (AGENTS §14): `error` and each `on` hook are
-	// defensively guarded with `isFunction` here so a malformed options bag is skipped rather
-	// than blowing up at first `emit` — `emit()` itself stays assertion-free and dependency-free
-	// (the hot path), trusting only what construction has already let through.
+	// Construction is the validation boundary: `error` and each `on` hook are defensively
+	// guarded with `isFunction` here so a malformed options bag is skipped rather than blowing
+	// up at first `emit` — `emit()` itself stays assertion-free and dependency-free (the hot
+	// path), trusting only what construction has already let through.
 	constructor(options?: EmitterOptions<TMap>) {
 		const error = options?.error
 		this.#error = isFunction(error) ? error : undefined
@@ -167,7 +167,7 @@ export class Emitter<TMap extends EventMap> implements EmitterInterface<TMap> {
 		}
 	}
 
-	// Route an isolated listener throw to the `error` handler (§13), inside its OWN try/catch:
+	// Route an isolated listener throw to the `error` handler, inside its OWN try/catch:
 	// a throwing error-handler is swallowed (anti-recursion — it can neither escape the emit loop
 	// nor re-enter it), and with no handler the throw is dropped silently. NEVER rethrows.
 	#surface(error: unknown, event: keyof TMap): void {
@@ -184,9 +184,9 @@ export class Emitter<TMap extends EventMap> implements EmitterInterface<TMap> {
 	// Register the initial `on` hooks. Each key is an event name whose value is the
 	// matching handler, so registering through `on` preserves the correlation the
 	// mapped `EmitterHooks` already guarantees — no assertion needed.
-	// Defensively guards each hook value with `isFunction` (AGENTS §14) — a non-function
-	// entry is skipped rather than registered, so a malformed `on` bag fails safe at
-	// construction instead of throwing later when the bad "handler" is invoked in `emit`.
+	// Defensively guards each hook value with `isFunction` — a non-function entry is skipped
+	// rather than registered, so a malformed `on` bag fails safe at construction instead of
+	// throwing later when the bad "handler" is invoked in `emit`.
 	#wire(hooks: EmitterHooks<TMap>): void {
 		for (const event of extractKeys(hooks)) {
 			const handler = hooks[event]

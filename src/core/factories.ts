@@ -2,12 +2,12 @@ import type { EmitterInterface, EmitterOptions, EventMap } from './types.js'
 import { Emitter } from './Emitter.js'
 
 /**
- * Create a typed event emitter — the foundational observable primitive (AGENTS §13).
+ * Creates a typed event emitter — the foundational observable primitive.
  *
  * @remarks
  * Prefer this over `new Emitter(...)` at call sites that only need the interface.
- * Entities that OWN an emitter (the §13 pattern) construct `new Emitter(...)` for
- * their `#emitter` field directly; this factory is the standalone entry point.
+ * Entities that OWN an emitter construct `new Emitter(...)` for their `#emitter`
+ * field directly; this factory is the standalone entry point.
  *
  * @typeParam TMap - The event map: each event name to its listener argument tuple.
  * @param options - Optional `on` hooks (initial listeners wired at construction) and
