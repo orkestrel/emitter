@@ -1,5 +1,5 @@
 /**
- * Extract the own enumerable keys of a mapped object, typed as its key union.
+ * Extracts the own enumerable keys of a mapped object, typed as its key union.
  *
  * @remarks
  * `Object.keys` widens its result to `string[]`, which breaks the key↔value

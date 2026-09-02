@@ -1,11 +1,11 @@
-/** An event map — each event name maps to the argument tuple its listeners receive. */
+/** Maps each event name to the argument tuple its listeners receive. */
 export type EventMap = Record<string, readonly unknown[]>
 
-/** A listener for one event's argument tuple. */
+/** Represents a listener for one event's argument tuple. */
 export type EmitterHandler<TArgs extends readonly unknown[]> = (...args: TArgs) => void
 
 /**
- * The emitter's OWN listener-error handler — invoked when a listener throws during
+ * Represents the emitter's OWN listener-error handler — invoked when a listener throws during
  * `emit`, with the caught error and the (stringified) event name.
  *
  * @remarks
@@ -18,18 +18,18 @@ export type EmitterHandler<TArgs extends readonly unknown[]> = (...args: TArgs) 
 export type EmitterErrorHandler = (error: unknown, event: string) => void
 
 /**
- * Initial event listeners for an emitter — the reserved `on` option: a partial map
+ * Declares the initial event listeners for an emitter — the reserved `on` option: a partial map
  * of event name to its handler, wired at construction.
  */
 export type EmitterHooks<TMap extends EventMap> = {
 	readonly [K in keyof TMap]?: EmitterHandler<TMap[K]>
 }
 
-/** Options for `createEmitter` / the `Emitter` constructor. */
+/** Configures `createEmitter` and the `Emitter` constructor. */
 export interface EmitterOptions<TMap extends EventMap> {
 	readonly on?: EmitterHooks<TMap>
 	/**
-	 * The emitter's listener-error handler — a throw from ANY listener during `emit` is
+	 * Holds the emitter's listener-error handler — a throw from ANY listener during `emit` is
 	 * routed here (with the error + the event name) instead of being rethrown. Omit it
 	 * and a listener throw is swallowed silently.
 	 */
@@ -37,12 +37,12 @@ export interface EmitterOptions<TMap extends EventMap> {
 }
 
 /**
- * A typed synchronous event emitter — the foundational observable primitive.
+ * Represents a typed synchronous event emitter — the foundational observable primitive.
  * Entities OWN one as `#emitter` and expose `readonly emitter`; they never
  * inherit from it.
  */
 export interface EmitterInterface<TMap extends EventMap> {
-	/** True after `destroy()`; false otherwise. */
+	/** Reports the teardown state: true after `destroy()`; false otherwise. */
 	readonly destroyed: boolean
 	/**
 	 * Registers a listener for an event. Does nothing after `destroy()`.

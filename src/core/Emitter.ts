@@ -10,7 +10,7 @@ import { isFunction } from '@orkestrel/contract'
 import { extractKeys } from './helpers.js'
 
 /**
- * A typed synchronous event emitter — the foundational observable primitive of the
+ * Implements a typed synchronous event emitter — the foundational observable primitive of the
  * codebase. Stateful entities OWN one as a `#emitter` field and expose it through
  * `readonly emitter`; they never inherit from it.
  *
