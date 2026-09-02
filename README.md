@@ -57,7 +57,7 @@ runs regardless, and every throw surfaces (not just the first).
 
 For the full surface — the `Emitter` class, `EmitterInterface`, and the
 listener-isolation contract — see
-[`guides/src/emitter.md`](guides/src/emitter.md).
+[`guides/emitter.md`](guides/emitter.md).
 
 ## Package
 
