@@ -1,5 +1,6 @@
 // The consumer-side guides-parity drop-in: runs `@orkestrel/guide`'s checks against
-// this repo's own `guides/README.md` manifest. The four constants below are this
+// this repo's own `guides/README.md` manifest. The `FENCE_LANGUAGES`,
+// `EXAMPLE_LANGUAGE`, `MODULES`, `INTERNAL`, and `ROOT_FILES` constants are this
 // package's own, and are the only part a sibling package changes.
 
 import { describe, expect, it } from 'vitest'
@@ -18,8 +19,9 @@ import {
 	resolveLink,
 } from '@orkestrel/guide'
 import { readFileSync } from 'node:fs'
-import { requireValue } from '@orkestrel/test'
+import { createRecorder, requireValue } from '@orkestrel/test'
 import { readInventory } from '@orkestrel/test/server'
+import { createEmitter } from '@src/core'
 
 /** Every fence language this package's guides are allowed to use. */
 const FENCE_LANGUAGES = Object.freeze(['ts'])
@@ -32,8 +34,9 @@ const MODULES = Object.freeze({ '@orkestrel/emitter': 'src/core', '@src/core': '
  *
  * A class that one-class-per-file evicted from its single consumer cannot become a
  * local, so it stays exported without being public. Naming it here is what makes that
- * intentional rather than forgotten — and the second assertion below fails when a name
- * here stops being stranded, so the list cannot rot.
+ * intentional rather than forgotten — and the `names no symbol internal that the barrel
+ * already exports` assertion fails when a name here stops being stranded, so the list
+ * cannot rot.
  */
 const INTERNAL: readonly string[] = Object.freeze([])
 
@@ -168,3 +171,51 @@ for (const entry of manifest) {
 		})
 	})
 }
+
+// The event map the guide's Manage-listeners fence declares.
+type FeedEventMap = {
+	post: readonly [id: string]
+}
+
+// The EXECUTED half. Every preceding check reads a name — from the guide text or
+// from the source — and a name that resolves proves nothing about the sentence
+// beside it, so a fence whose comment claims a value the code contradicts passes
+// all of them. The cases here run the flagship fence and assert the values its
+// comments claim. Change the fence, change the transcription beside it.
+describe('flagship fences', () => {
+	const guideText = requireValue(files['guides/emitter.md'], 'Missing file: guides/emitter.md')
+
+	it('counts per event and in total, drops the counted listener on off, and survives clear', () => {
+		// Transcribed from the Manage-listeners fence. `count` is the load-bearing
+		// part: it answers for one event and across every event, it falls to zero when
+		// `off` is handed the original handler, and `clear` leaves the emitter usable.
+		const feed = createEmitter<FeedEventMap>()
+		const post = createRecorder<readonly [string]>()
+
+		feed.on('post', post.handler)
+
+		expect(feed.count('post')).toBe(1)
+		expect(feed.count()).toBe(1)
+
+		feed.off('post', post.handler)
+
+		expect(feed.count('post')).toBe(0)
+
+		feed.on('post', post.handler)
+		feed.clear('post')
+		feed.clear()
+
+		expect(feed.destroyed).toBe(false)
+	})
+
+	it('carries the manage-listeners fence lines the transcription copies', () => {
+		// The presence guard beside the transcription: it proves the transcribed lines
+		// are still the documented ones, and nothing whatever about behavior. Binding
+		// one call line alone leaves a comment free to claim the opposite value and
+		// stay green, so every line carrying a claim is bound.
+		expect(guideText).toContain("feed.count('post') // 1")
+		expect(guideText).toContain('feed.count() // 1 — total across all events')
+		expect(guideText).toContain("feed.count('post') // 0")
+		expect(guideText).toContain('feed.clear() // drop everything; `feed.destroyed` stays false')
+	})
+})

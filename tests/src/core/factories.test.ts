@@ -5,7 +5,7 @@ import { createRecorder } from '@orkestrel/test'
 
 // The emitter factory — that `createEmitter` returns a working EmitterInterface.
 // Full behavior (once/off/count/clear/destroy, isolation) lives in Emitter.test.ts;
-// here we only assert the factory hands back a usable emitter and honors `on` hooks.
+// this file asserts only that the factory hands back a usable emitter and honors `on` hooks.
 // Event map as a `type` alias (see Emitter.test.ts) so `on`-hook literals stay typed.
 type ClockEventMap = {
 	tick: readonly [at: number]

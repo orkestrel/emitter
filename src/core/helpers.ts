@@ -5,7 +5,8 @@
  * `Object.keys` widens its result to `string[]`, which breaks the key↔value
  * correlation a mapped type (like `EmitterHooks<TMap>`) otherwise guarantees.
  * A `for…in` push into a `keyof`-typed array narrows the result back,
- * type-safely and with no assertion.
+ * type-safely and with no assertion. Inherited enumerable keys are excluded, as
+ * `Object.keys` excludes them.
  *
  * @typeParam T - The object shape whose keys are extracted.
  * @param object - The object to read keys from.
@@ -22,6 +23,6 @@
  */
 export function extractKeys<T extends object>(object: T): ReadonlyArray<keyof T> {
 	const collected: Array<keyof T> = []
-	for (const key in object) collected.push(key)
+	for (const key in object) if (Object.hasOwn(object, key)) collected.push(key)
 	return collected
 }

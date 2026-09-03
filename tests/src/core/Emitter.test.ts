@@ -1,14 +1,14 @@
-import type { EmitterErrorHandler, EmitterHandler } from '@src/core'
+import type { EmitterErrorHandler } from '@src/core'
 import { Emitter } from '@src/core'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { createRecorder } from '@orkestrel/test'
 
-// Emitter — the foundational synchronous, listener-isolating observable primitive
-// (AGENTS §13). Real listeners (recorders from tests/setup.ts), no mocks: assert
-// observable behavior — what fired, in what order, how many remain. The event map
-// is a `type` alias (not `interface extends EventMap`): a type-literal satisfies the
-// `EventMap` constraint structurally without inheriting its index signature, which
-// keeps `on`-hook literals precisely typed (§4.5 — `EventMap` is a `type` kind).
+// Emitter — the foundational synchronous, listener-isolating observable primitive.
+// Real listeners (recorders from `@orkestrel/test`), no mocks: assert observable
+// behavior — what fired, in what order, how many remain. The event map is a `type`
+// alias (not `interface extends EventMap`): a type-literal satisfies the `EventMap`
+// constraint structurally without inheriting its index signature, which keeps
+// `on`-hook literals precisely typed.
 type TestEventMap = {
 	tick: readonly [count: number]
 	named: readonly [name: string, age: number]
@@ -449,11 +449,10 @@ describe('Emitter', () => {
 	it('off during emit — a pending once handler still fires this round (snapshot), never again', () => {
 		const emitter = new Emitter<TestEventMap>()
 		const tick = createRecorder<readonly [number]>()
-		const onceHandler: EmitterHandler<readonly [number]> = (count) => tick.handler(count)
 		emitter.on('tick', () => {
-			emitter.off('tick', onceHandler)
+			emitter.off('tick', tick.handler)
 		})
-		emitter.once('tick', onceHandler)
+		emitter.once('tick', tick.handler)
 
 		emitter.emit('tick', 1)
 		expect(tick.calls).toEqual([[1]])
@@ -480,12 +479,9 @@ describe('Emitter', () => {
 	})
 
 	it('error handler doubling as a listener — receives both the listener call and the error call', () => {
-		const calls: Array<readonly unknown[]> = []
-		const dual = (...args: readonly unknown[]): void => {
-			calls.push(args)
-		}
-		const emitter = new Emitter<TestEventMap>({ error: dual })
-		emitter.on('tick', dual)
+		const dual = createRecorder()
+		const emitter = new Emitter<TestEventMap>({ error: dual.handler })
+		emitter.on('tick', dual.handler)
 		const failure = new Error('sibling boom')
 		emitter.on('tick', () => {
 			throw failure
@@ -493,7 +489,7 @@ describe('Emitter', () => {
 
 		emitter.emit('tick', 5)
 
-		expect(calls).toEqual([[5], [failure, 'tick']])
+		expect(dual.calls).toEqual([[5], [failure, 'tick']])
 	})
 })
 

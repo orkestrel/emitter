@@ -18,8 +18,8 @@ npm install @orkestrel/emitter
 
 ## Requirements
 
-- Node.js >= 24
-- ESM-only (no CommonJS build)
+- Node.js >= 22.12.0
+- ESM and CommonJS builds
 
 ## Usage
 
@@ -34,13 +34,14 @@ type ClockEventMap = {
 
 const clock = createEmitter<ClockEventMap>({
 	on: { done: () => stop() }, // initial listeners wired at construction
-	error: (cause, event) => logger.warn(`listener for "${event}" threw`, cause),
+	error: (error, event) => logger.warn(`listener for "${event}" threw`, error),
 })
 
-clock.on('tick', (at) => render(at)) // `at` is typed `number` from the map
+const onTick = (at: number) => render(at)
+clock.on('tick', onTick) // `at` is typed `number` from the map
 clock.emit('tick', Date.now()) // synchronous — every `tick` listener runs now
 clock.once('done', () => cleanup()) // removes itself after its first call
-clock.off('tick', render) // remove a listener by its original handler
+clock.off('tick', onTick) // remove a listener by its original handler
 clock.count() // live listener count, total or per-event
 clock.clear() // drop listeners, total or per-event; emitter stays usable
 clock.destroy() // teardown — drops every listener, flips `destroyed`
