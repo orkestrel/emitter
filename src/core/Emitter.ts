@@ -10,9 +10,9 @@ import { isFunction } from '@orkestrel/contract'
 import { extractKeys } from './helpers.js'
 
 /**
- * Implements a typed synchronous event emitter — the foundational observable primitive of the
- * codebase. Stateful entities OWN one as a `#emitter` field and expose it through
- * `readonly emitter`; they never inherit from it.
+ * Implements the emitter contract over one listener `Set` per event, so every public method is
+ * precisely typed with no assertion. A stateful entity owns one as a `#emitter` field and
+ * exposes it through `readonly emitter`; it never inherits from it.
  *
  * @typeParam TMap - The event map: each event name to the argument tuple its
  *   listeners receive.
@@ -26,8 +26,6 @@ import { extractKeys } from './helpers.js'
  *   surfaces (not only the first), and with no `error` handler a throw is swallowed
  *   silently. The `error` handler runs inside its own try/catch, so a throwing
  *   error-handler is swallowed too (anti-recursion — it cannot escape or re-enter).
- * - **Per-event storage.** Listeners live in a per-event `Set`, so every public
- *   method is precisely typed with no assertions.
  * - **Destroyed → no-op.** After `destroy()`, `on` / `once` / `emit` do nothing
  *   and `destroyed` is `true`.
  *

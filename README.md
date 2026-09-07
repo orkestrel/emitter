@@ -1,14 +1,14 @@
 # @orkestrel/emitter
 
-A typed, **synchronous** event emitter — the foundational observable
-primitive that stateful entities (a queue, a database table, an agent) own to
-expose their lifecycle transitions and observable operations. Deliberately
-small: no scheduler (listeners fire in the current tick, in registration
-order), no listener cap, no `console` output. What it does carry is the one
-invariant a fan-out primitive can't omit — a throwing listener is isolated so
-it can never take down its siblings or the emit loop; the throw routes to an
-optional `error` handler instead of being rethrown. Part of the `@orkestrel`
-line.
+> The foundational observable primitive: a typed, synchronous event emitter that a
+> stateful entity owns as a `#emitter` field and exposes through a `readonly emitter`
+> property, fanning each event out to its listeners in the current tick and isolating a
+> throwing listener from its siblings.
+
+Create an emitter with the `createEmitter` function, subscribe with `on` or `once`, and
+call `emit` to fan an event out to its listeners. Own one as a `#emitter` field where an
+entity of your own reports lifecycle transitions, and pass an `error` handler to receive a
+listener's throw. Part of the `@orkestrel` line.
 
 ## Install
 
