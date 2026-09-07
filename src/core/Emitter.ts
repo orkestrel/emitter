@@ -10,7 +10,7 @@ import { isFunction } from '@orkestrel/contract'
 import { extractKeys } from './helpers.js'
 
 /**
- * Implements the emitter contract over one listener `Set` per event, so every public method is
+ * Implements `EmitterInterface` over one listener `Set` per event, so every public method is
  * precisely typed with no assertion. A stateful entity owns one as a `#emitter` field and
  * exposes it through `readonly emitter`; it never inherits from it.
  *

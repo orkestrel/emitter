@@ -211,19 +211,19 @@ for (const entry of manifest) {
 		for (const group of guide.methods()) {
 			const entity = group.interface.replace(/Interface$/, '')
 			const documented = group.methods.map((method) => method.name)
+			const examples =
+				entity === group.interface
+					? source.examples(group.interface).map((example) => example.name)
+					: source
+							.examples(group.interface)
+							.map((example) => example.name)
+							.concat(source.examples(entity).map((example) => example.name))
 			describe(`${group.interface} examples`, () => {
 				it('documents an example for every method', () => {
 					const fences = guide
 						.fences()
 						.filter((fence) => fence.language === EXAMPLE_LANGUAGE)
 						.map((fence) => fence.code)
-					const examples =
-						entity === group.interface
-							? source.examples(group.interface).map((example) => example.name)
-							: source
-									.examples(group.interface)
-									.map((example) => example.name)
-									.concat(source.examples(entity).map((example) => example.name))
 					expect(findUnexampled(documented, fences, examples)).toEqual([])
 				})
 			})
@@ -270,7 +270,7 @@ type FeedEventMap = {
 // all of them. The cases here run the flagship fence and assert the values its
 // comments claim. Change the fence, change the transcription beside it.
 describe('flagship fences', () => {
-	const guideText = requireValue(files['guides/emitter.md'], 'Missing file: guides/emitter.md')
+	const guideText = requireValue(files[GUIDE_SPEC], `Missing file: ${GUIDE_SPEC}`)
 
 	it('counts per event and in total, drops the counted listener on off, and survives clear', () => {
 		// Transcribed from the Manage-listeners fence. `count` is the load-bearing
