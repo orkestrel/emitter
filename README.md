@@ -52,7 +52,7 @@ clock.destroy() // teardown — drops every listener, flips `destroyed`
 construction; the optional `error` option receives any listener's throw as
 `(error, event)` so `emit` never has to rethrow — with no `error` handler, a
 throw is swallowed silently. `emit` never stops on a throw: every listener
-runs regardless, and every throw surfaces (not just the first).
+runs regardless, and every throw surfaces (not only the first).
 
 ## Guide
 

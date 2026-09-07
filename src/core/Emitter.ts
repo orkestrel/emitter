@@ -23,7 +23,7 @@ import { extractKeys } from './helpers.js'
  * - **Listener isolation.** A throwing listener never stops its siblings: every
  *   listener runs, and a throw is routed to the `error` handler
  *   ({@link EmitterOptions.error}) — never rethrown. Every throwing listener
- *   surfaces (not just the first), and with no `error` handler a throw is swallowed
+ *   surfaces (not only the first), and with no `error` handler a throw is swallowed
  *   silently. The `error` handler runs inside its own try/catch, so a throwing
  *   error-handler is swallowed too (anti-recursion — it cannot escape or re-enter).
  * - **Per-event storage.** Listeners live in a per-event `Set`, so every public
@@ -116,7 +116,7 @@ export class Emitter<TMap extends EventMap> implements EmitterInterface<TMap> {
 		const listeners = this.#listeners[event]
 		if (listeners === undefined) return
 		// Every listener runs; a throw is isolated and routed to the `error` handler — never
-		// rethrown, never stopping a sibling. EVERY throwing listener surfaces, not just the first.
+		// rethrown, never stopping a sibling. EVERY throwing listener surfaces, not only the first.
 		for (const handler of [...listeners]) {
 			try {
 				handler(...args)
