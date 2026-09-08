@@ -113,6 +113,8 @@ Deliberately out of scope, to keep the surface small: a listener-count cap or `m
 
 ### Standalone emitter
 
+Create an emitter with no owning entity, subscribe, and fire its events:
+
 ```ts
 import { createEmitter } from '@orkestrel/emitter'
 
