@@ -1,6 +1,6 @@
 {
 	"name": "@orkestrel/emitter",
-	"version": "0.0.10",
+	"version": "0.0.11",
 	"description": "A typed, synchronous event emitter — listener isolation with an error hook, once/off/clear/destroy, and no scheduler or listener cap. Part of the @orkestrel line.",
 	"keywords": [
 		"emitter",
