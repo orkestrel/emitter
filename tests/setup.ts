@@ -6,3 +6,6 @@
 // Recorders come from `@orkestrel/test`. A listener-error recorder is
 // `createRecorder<Parameters<EmitterErrorHandler>>()` at the call site, which derives
 // its tuple from this package's own handler type rather than restating it here.
+
+/** Receives an event without changing state. */
+export function receiveEvent(): void {}

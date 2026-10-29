@@ -1,7 +1,6 @@
 import { extractKeys } from '@src/core'
 import { describe, expect, it } from 'vitest'
-
-function receiveEvent(): void {}
+import { receiveEvent } from '../../setup.js'
 
 // extractKeys — the pure, testable leaf behind Emitter's `#wire`: the typed keys of a
 // mapped object, narrowed back from `Object.keys`'s `string[]` widening.
