@@ -126,9 +126,7 @@ export class Emitter<TMap extends EventMap> implements EmitterInterface<TMap> {
 
 	count(event?: keyof TMap): number {
 		if (event !== undefined) return this.#listeners[event]?.size ?? 0
-		let total = 0
-		for (const set of Object.values(this.#listeners)) total += set?.size ?? 0
-		return total
+		return Object.values(this.#listeners).reduce((total, set) => total + (set?.size ?? 0), 0)
 	}
 
 	clear(event?: keyof TMap): void {

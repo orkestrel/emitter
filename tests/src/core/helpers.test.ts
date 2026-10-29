@@ -1,11 +1,13 @@
 import { extractKeys } from '@src/core'
 import { describe, expect, it } from 'vitest'
 
+function receiveEvent(): void {}
+
 // extractKeys — the pure, testable leaf behind Emitter's `#wire`: the typed keys of a
 // mapped object, narrowed back from `Object.keys`'s `string[]` widening.
 describe('extractKeys', () => {
 	it('returns the own enumerable keys of a record, typed as its key union', () => {
-		const hooks = { tick: () => {}, done: () => {} }
+		const hooks = { tick: receiveEvent, done: receiveEvent }
 
 		expect(extractKeys(hooks)).toEqual(['tick', 'done'])
 	})
@@ -15,8 +17,8 @@ describe('extractKeys', () => {
 	})
 
 	it('excludes an inherited enumerable key', () => {
-		const base = { inherited: () => {} }
-		const hooks: { readonly tick: () => void } = { tick: () => {} }
+		const base = { inherited: receiveEvent }
+		const hooks: { readonly tick: () => void } = { tick: receiveEvent }
 		Object.setPrototypeOf(hooks, base)
 
 		// The control: the inherited key is reachable, so a walk that included it would collect it.
