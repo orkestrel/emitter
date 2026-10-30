@@ -46,19 +46,19 @@ The reserved `on` option wires initial listeners at construction; the optional `
 
 ### Factories
 
-| API             | Kind     | Summary                                                                                                                                                           |
+| Name            | Kind     | Summary                                                                                                                                                           |
 | --------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `createEmitter` | function | Creates a typed synchronous event emitter and returns it as an `EmitterInterface<TMap>`, wiring the initial `on` hooks and the `error` handler its options carry. |
 
 ### Helpers
 
-| API           | Kind     | Summary                                                                      |
+| Name          | Kind     | Summary                                                                      |
 | ------------- | -------- | ---------------------------------------------------------------------------- |
 | `extractKeys` | function | Extracts the own enumerable keys of a mapped object, typed as its key union. |
 
 ### Classes
 
-| API       | Kind  | Summary                                                                                                                                                                                                                                              |
+| Name      | Kind  | Summary                                                                                                                                                                                                                                              |
 | --------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Emitter` | class | Implements `EmitterInterface` over one listener `Set` per event, so every public method is precisely typed with no assertion. A stateful entity owns one as a `#emitter` field and exposes it through `readonly emitter`; it never inherits from it. |
 
@@ -66,7 +66,7 @@ The reserved `on` option wires initial listeners at construction; the optional `
 
 A `Shape` cell holds an interface's data members as bare names in braces, `?` marking an optional member and `plus` introducing its call-signature members, and a type alias's own type literal with a union's arms escaped as `\|`.
 
-| Type                  | Kind      | Shape                                                           | Summary                                                                                                                                                                                                                                 |
+| Name                  | Kind      | Shape                                                           | Summary                                                                                                                                                                                                                                 |
 | --------------------- | --------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `EventMap`            | type      | `Record<string, readonly unknown[]>`                            | Maps each event name to the argument tuple its listeners receive.                                                                                                                                                                       |
 | `EmitterHandler`      | type      | `(...args: TArgs) => void`                                      | Represents a listener for one event's argument tuple.                                                                                                                                                                                   |
